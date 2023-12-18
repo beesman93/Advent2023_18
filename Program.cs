@@ -1,11 +1,8 @@
-﻿using System.Globalization;
-
+﻿using static System.Globalization.NumberStyles;
 List<string> lines = new();
 using (StreamReader reader = new(args[0]))
     while (!reader.EndOfStream)
         lines.Add(reader.ReadLine() ?? "");
-
-
 new List<bool>() { false, true }.ForEach(b => solve(b));
 void solve(bool part2)
 {
@@ -15,34 +12,20 @@ void solve(bool part2)
     foreach (string line in lines.Skip(0))
     {
         var ls = line.Split(' ');
-        
-        string s = ls[0];
+        string s = part2?ls[2][7..8]:ls[0];
         string val = part2?ls[2][2..7]:ls[1];
-        string dirdir = ls[2][7..8];
-
-        if (part2) s = dirdir switch
-        {
-            "3" => "U",
-            "1" => "D",
-            "2" => "L",
-            "0" => "R",
-        };
         (long x, long y) dir = s switch
         {
-            "U" => (-1, 0),
-            "D" => (1, 0),
-            "L" => (0, -1),
-            "R" => (0, 1),
+            "U" or "3" => (-1, 0),
+            "D" or "1" => (1, 0),
+            "L" or "2" => (0, -1),
+            "R" or "0" => (0, 1),
         };
-
-        long len = long.Parse(val, part2?NumberStyles.HexNumber:NumberStyles.Integer);
-
-        dir = (dir.x * len, dir.y * len);
-        var prev = coord;
-        coord = (coord.x + dir.x, coord.y + dir.y);
-
-        areaDoubled += (prev.x * coord.y) - (coord.x * prev.y);
+        long len = long.Parse(val, part2?HexNumber:Integer);
         pathLen += len;
+        var prev = coord;
+        coord = (coord.x+dir.x*len,coord.y+dir.y*len);
+        areaDoubled += (prev.x * coord.y) - (coord.x * prev.y);
     }
     Console.WriteLine($"Part{(part2?2:1)}:\t {((Math.Abs(areaDoubled) / 2.0) + (pathLen / 2.0)) + 1}");
 }
